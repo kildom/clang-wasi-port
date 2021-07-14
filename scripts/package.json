@@ -1,0 +1,9 @@
+{
+  "name": "clang-wasi-port-scripts",
+  "private": true,
+  "version": "0.0.1",
+  "main": "download_wasi_sdk.js",
+  "devDependencies": {
+    "tar": "^6.1.0"
+  }
+}
