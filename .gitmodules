@@ -1,4 +1,3 @@
 [submodule "wasi-sdk-src"]
 	path = wasi-sdk-src
 	url = https://github.com/kildom/clang-wasi-port.git
-	branch = ported-wasi-sdk
