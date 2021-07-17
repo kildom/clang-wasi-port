@@ -3,6 +3,8 @@
 
 ROOT_DIR=${CURDIR}
 LLVM_PROJ_DIR?=$(ROOT_DIR)/src/llvm-project
+#PDIR=$(abspath ${CURDIR}/..)
+PDIR=/c/work/wasm-clang-port
 
 # Windows needs munging
 ifeq ($(OS),Windows_NT)
@@ -85,19 +87,20 @@ build/llvm.BUILT:
 		llvm-config
 	touch build/llvm.BUILT
 
-build/wasi-libc.BUILT: build/llvm.BUILT
+build/wasi-libc.BUILT:
 	$(MAKE) -C $(ROOT_DIR)/src/wasi-libc \
-		WASM_CC=$(BUILD_PREFIX)/bin/clang \
-		SYSROOT=$(BUILD_PREFIX)/share/wasi-sysroot
+	    -j`nproc` \
+		WASM_CC=$(PDIR)/wasi-sdk-new/bin/clang \
+		SYSROOT=$(PDIR)/build/libc
 	touch build/wasi-libc.BUILT
 
-build/compiler-rt.BUILT: build/llvm.BUILT
+build/compiler-rt.BUILT:
 	# Do the build, and install it.
 	mkdir -p build/compiler-rt
 	cd build/compiler-rt && cmake -G Ninja \
 		-DCMAKE_C_COMPILER_WORKS=ON \
 		-DCMAKE_CXX_COMPILER_WORKS=ON \
-		-DCMAKE_AR=$(BUILD_PREFIX)/bin/ar \
+		-DCMAKE_AR=$(PDIR)/wasi-sdk-new/bin/ar \
 		-DCMAKE_MODULE_PATH=$(ROOT_DIR)/cmake \
 		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
 		-DCMAKE_TOOLCHAIN_FILE=$(ROOT_DIR)/wasi-sdk.cmake \
@@ -107,16 +110,16 @@ build/compiler-rt.BUILT: build/llvm.BUILT
 		-DCOMPILER_RT_HAS_FPIC_FLAG=OFF \
 		-DCOMPILER_RT_ENABLE_IOS=OFF \
 		-DCOMPILER_RT_DEFAULT_TARGET_ONLY=On \
-		-DWASI_SDK_PREFIX=$(BUILD_PREFIX) \
-		-DCMAKE_C_FLAGS="$(DEBUG_PREFIX_MAP) --sysroot=$(BUILD_PREFIX)/share/wasi-sysroot" \
-		-DLLVM_CONFIG_PATH=$(ROOT_DIR)/build/llvm/bin/llvm-config \
+		-DWASI_SDK_PREFIX=$(PDIR)/wasi-sdk-new \
+		-DCMAKE_C_FLAGS="$(DEBUG_PREFIX_MAP) --sysroot=$(PDIR)/wasi-sdk-new/share/wasi-sysroot" \
+		-DLLVM_CONFIG_PATH=$(PDIR)/build/native/bin/llvm-config \
 		-DCOMPILER_RT_OS_DIR=wasi \
-		-DCMAKE_INSTALL_PREFIX=$(PREFIX)/lib/clang/$(CLANG_VERSION)/ \
+		-DCMAKE_INSTALL_PREFIX=$(PDIR)/wasi-sdk-new/lib/clang/$(CLANG_VERSION)/ \
 		-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
 		$(LLVM_PROJ_DIR)/compiler-rt/lib/builtins
-	DESTDIR=$(DESTDIR) ninja $(NINJA_FLAGS) -v -C build/compiler-rt install
+	ninja $(NINJA_FLAGS) -v -C build/compiler-rt install
 	# Install clang-provided headers.
-	cp -R $(ROOT_DIR)/build/llvm/lib/clang $(BUILD_PREFIX)/lib/
+	#cp -R $(ROOT_DIR)/build/llvm/lib/clang $(BUILD_PREFIX)/lib/
 	touch build/compiler-rt.BUILT
 
 # Flags for libcxx.
