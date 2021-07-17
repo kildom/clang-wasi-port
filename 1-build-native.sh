@@ -1,6 +1,6 @@
 #!/bin/bash
-
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+set -e
 
 mkdir -p $SCRIPT_DIR/build/native
 cd $SCRIPT_DIR/build/native
@@ -14,4 +14,4 @@ cmake -G Ninja \
 		-DDEFAULT_SYSROOT=$SCRIPT_DIR/install/share/wasi-sysroot \
 		$SCRIPT_DIR/wasi-sdk-src/src/llvm-project/llvm
 
-ninja llvm-tblgen clang-tblgen
+ninja llvm-tblgen clang-tblgen llvm-config
