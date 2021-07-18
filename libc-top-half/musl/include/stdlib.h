@@ -53,6 +53,8 @@ void free (void *);
 #endif
 void *aligned_alloc(size_t, size_t);
 
+#define __wasilibc_unmodified_upstream
+
 _Noreturn void abort (void);
 int atexit (void (*) (void));
 _Noreturn void exit (int);
@@ -155,7 +157,9 @@ void lcong48 (unsigned short [7]);
 #endif
 
 #if defined(_GNU_SOURCE) || defined(_BSD_SOURCE)
+#undef __wasilibc_unmodified_upstream
 #include <alloca.h>
+#define __wasilibc_unmodified_upstream
 #ifdef __wasilibc_unmodified_upstream /* WASI has no temp directories */
 char *mktemp (char *);
 int mkstemps (char *, int);
@@ -197,6 +201,8 @@ long double strtold_l(const char *__restrict, char **__restrict, struct __locale
 #endif
 #endif
 #endif
+
+#undef __wasilibc_unmodified_upstream
 
 #ifdef __wasilibc_unmodified_upstream /* Declare arc4random functions */
 #else
