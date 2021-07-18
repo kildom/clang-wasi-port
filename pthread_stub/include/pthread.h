@@ -11,17 +11,33 @@ enum
   PTHREAD_MUTEX_RECURSIVE,
 };
 
-typedef int pthread_mutex_t;
-typedef int pthread_cond_t;
+#ifndef __DEFINED_pthread_mutex_t
+typedef struct { int x; } pthread_mutex_t;
+#endif
+#ifndef __DEFINED_pthread_cond_t
+typedef struct { int x; } pthread_cond_t;
+#endif
+#ifndef __DEFINED_pthread_t
 typedef int pthread_t;
+#endif
+#ifndef __DEFINED_pthread_key_t
 typedef int pthread_key_t;
+#endif
+#ifndef __DEFINED_pthread_mutexattr_t
 typedef int pthread_mutexattr_t;
+#endif
+#ifndef __DEFINED_pthread_once_t
 typedef int pthread_once_t;
+#endif
+#ifndef __DEFINED_pthread_attr_t
 typedef int pthread_attr_t;
+#endif
+#ifndef __DEFINED_pthread_condattr_t
 typedef int pthread_condattr_t;
+#endif
 
-#define PTHREAD_COND_INITIALIZER 0
-#define PTHREAD_MUTEX_INITIALIZER 0
+#define PTHREAD_COND_INITIALIZER { }
+#define PTHREAD_MUTEX_INITIALIZER { }
 #define PTHREAD_ONCE_INIT 0
 
 int pthread_cond_init (pthread_cond_t * cond, const pthread_condattr_t * cond_attr);
