@@ -1,3 +1,6 @@
+#ifndef _MY_PORT_
+#define _WASI_EMULATED_SIGNAL
+#endif
 #ifndef _WASI_EMULATED_SIGNAL
 #error "wasm lacks signal support; to enable minimal signal emulation, \
 compile with -D_WASI_EMULATED_SIGNAL and link with -lwasi-emulated-signal"
@@ -10,6 +13,8 @@ extern "C" {
 #endif
 
 #include <features.h>
+
+#define __wasilibc_unmodified_upstream
 
 #if defined(_POSIX_SOURCE) || defined(_POSIX_C_SOURCE) \
  || defined(_XOPEN_SOURCE) || defined(_GNU_SOURCE) \
@@ -30,7 +35,9 @@ extern "C" {
 #define __NEED_clock_t
 #define __NEED_sigset_t
 
+#undef __wasilibc_unmodified_upstream
 #include <bits/alltypes.h>
+#define __wasilibc_unmodified_upstream
 
 #define SIG_BLOCK     0
 #define SIG_UNBLOCK   1
@@ -51,7 +58,9 @@ typedef struct sigaltstack stack_t;
 
 #endif
 
+#undef __wasilibc_unmodified_upstream
 #include <bits/signal.h>
+#define __wasilibc_unmodified_upstream
 
 #if defined(_POSIX_SOURCE) || defined(_POSIX_C_SOURCE) \
  || defined(_XOPEN_SOURCE) || defined(_GNU_SOURCE) \
@@ -312,6 +321,8 @@ __REDIR(sigtimedwait, __sigtimedwait_time64);
 #endif
 #endif
 #endif
+
+#undef __wasilibc_unmodified_upstream
 
 #ifdef __cplusplus
 }

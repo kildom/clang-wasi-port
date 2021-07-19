@@ -41,6 +41,8 @@ extern "C" {
 
 #include <bits/alltypes.h>
 
+#define __wasilibc_unmodified_upstream
+
 #ifdef __wasilibc_unmodified_upstream /* WASI has no pipe */
 int pipe(int [2]);
 int pipe2(int [2], int);
@@ -108,12 +110,14 @@ int rmdir(const char *);
 int truncate(const char *, off_t);
 int ftruncate(int, off_t);
 
+#undef __wasilibc_unmodified_upstream
 #ifdef __wasilibc_unmodified_upstream /* Use alternate WASI libc headers */
 #define F_OK 0
 #define R_OK 4
 #define W_OK 2
 #define X_OK 1
 #endif
+#define __wasilibc_unmodified_upstream
 
 int access(const char *, int);
 int faccessat(int, const char *, int, int);
@@ -342,6 +346,7 @@ ssize_t copy_file_range(int, off_t *, int, off_t *, size_t, unsigned);
 
 #define _POSIX2_C_BIND          _POSIX_VERSION
 
+#undef __wasilibc_unmodified_upstream
 #include <bits/posix.h>
 
 

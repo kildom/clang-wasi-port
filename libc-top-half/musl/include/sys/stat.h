@@ -74,6 +74,8 @@ extern "C" {
 #include <__header_sys_stat.h>
 #endif
 
+#define __wasilibc_unmodified_upstream
+
 int stat(const char *__restrict, struct stat *__restrict);
 int fstat(int, struct stat *);
 int lstat(const char *__restrict, struct stat *__restrict);
@@ -134,6 +136,8 @@ __REDIR(fstatat, __fstatat_time64);
 __REDIR(futimens, __futimens_time64);
 __REDIR(utimensat, __utimensat_time64);
 #endif
+
+#undef __wasilibc_unmodified_upstream
 
 #ifdef __cplusplus
 }
