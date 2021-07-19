@@ -8,6 +8,7 @@ cd $SCRIPT_DIR/build
 export CC="$SCRIPT_DIR/wasi-sdk-new/bin/clang --sysroot=$SCRIPT_DIR/wasi-sdk-new/share/wasi-sysroot"
 export CXX="$SCRIPT_DIR/wasi-sdk-new/bin/clang++ --sysroot=$SCRIPT_DIR/wasi-sdk-new/share/wasi-sysroot"
 
+echo 
 cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=MinSizeRel \
 		-DCMAKE_INSTALL_PREFIX=$SCRIPT_DIR/build/install \
@@ -40,4 +41,4 @@ cmake -G Ninja \
 		-DCMAKE_SKIP_BUILD_RPATH=ON \
 		$SCRIPT_DIR/wasi-sdk-src/src/llvm-project/llvm
 
-ninja -v
+ninja -v install-clang install-lld
