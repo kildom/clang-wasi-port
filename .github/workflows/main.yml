@@ -1,0 +1,27 @@
+name: CI
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    name: Build all
+    runs-on: ubuntu-latest
+    env:
+      CMAKE_C_COMPILER: gcc
+      CMAKE_CXX_COMPILER: g++
+      CMAKE_ASM_COMPILER: as
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Checkout submodules
+        run: git submodule update --init --recursive
+      - name: Downloads
+        run: |
+          sudo apt-get install -y ninja-build
+          mkdir -p wasi-sdk
+          cd scripts
+          npm update
+          node download_wasi_sdk.js
+      - name: Build patched WASI-SDK
+        run: ./build-wasi-sdk-new.sh
+      - name: Build clang
+        run: ./build-llvm.sh
