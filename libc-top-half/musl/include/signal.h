@@ -1,6 +1,3 @@
-#ifndef _MY_PORT_
-#define _WASI_EMULATED_SIGNAL
-#endif
 #ifndef _WASI_EMULATED_SIGNAL
 #error "wasm lacks signal support; to enable minimal signal emulation, \
 compile with -D_WASI_EMULATED_SIGNAL and link with -lwasi-emulated-signal"
