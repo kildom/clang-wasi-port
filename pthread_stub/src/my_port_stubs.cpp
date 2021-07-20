@@ -190,3 +190,26 @@ int pthread_create (pthread_t * newthread, const pthread_attr_t * attr, void *(*
 {
     return -1;
 }
+
+extern "C" {
+
+void *mmap (void *, size_t, int, int, int, off_t)
+{
+    return NULL;
+}
+
+int munmap (void *, size_t)
+{
+    return -1;
+}
+
+int mprotect (void *, size_t, int)
+{
+    return -1;
+}
+
+int raise(int sig) {
+    return -1;
+}
+
+}
