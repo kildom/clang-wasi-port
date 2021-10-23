@@ -1,17 +1,19 @@
 
+#include <malloc.h>
 #include <pthread.h>
+#include <limits.h>
 
 #define _WASI_EMULATED_MMAN
 #include <sys/mman.h>
 
 #define IMPORT(module, name) __attribute__((used)) __attribute__((import_module(#module))) __attribute__((import_name(#name)))
-#define IMPORT_MY(name) __attribute__((used)) __attribute__((import_module("my"))) __attribute__((import_name(#name)))
+#define IMPORT_MY(name) __attribute__((used)) __attribute__((import_module("wasiext"))) __attribute__((import_name(#name)))
 
 IMPORT_MY(my_realpath)
-char *my_realpath(const char * filename, char * resolved);
+void my_realpath(const char * filename, char * resolved, int size);
 
 IMPORT_MY(my_fatal)
-char *my_fatal(const char *message);
+void my_fatal(const char *message);
 
 IMPORT_MY(my_exec_name)
 void my_exec_name(const char *buffer, int size);
@@ -26,7 +28,15 @@ extern "C" {
 
 char *realpath(const char * filename, char * resolved)
 {
-    return my_realpath(filename, resolved);
+    if (resolved == NULL) {
+        resolved = (char*)malloc(PATH_MAX + 1);
+        if (resolved == NULL) {
+            my_fatal("Out of memory");
+            return NULL;
+        }
+    }
+    my_realpath(filename, resolved, PATH_MAX);
+    return resolved;
 }
 
 int sigfillset(sigset_t *set)

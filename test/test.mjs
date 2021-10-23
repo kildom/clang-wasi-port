@@ -1,11 +1,13 @@
 import fs from 'fs';
 import { WASI } from 'wasi';
+import path from 'path';
 
 let instance;
 let memory;
 
 // ["", "-c", "/sandbox/a.c", "-o", "/sandbox/a.o"]
 // ["", "/sandbox/a.c", "-o", "/sandbox/a.o"]
+// ["","--sysroot", "/share/wasi-sysroot", "-Oz", "/sandbox/a.c", "-o", "/sandbox/out.wasm"]
 
 console.log("readFileSync");
 let code = fs.readFileSync('../build/install/bin/clang-11')
@@ -58,19 +60,27 @@ async function run(args) {
   const wasi = new WASI({
     args: args,
     env: process.env,
+    returnOnExit: true,
     preopens: {
-      '/sandbox': fs.realpathSync('.'),
-      '/tmp': fs.realpathSync('.')
+      '/sandbox': fs.realpathSync('./sandbox'),
+      '/tmp': fs.realpathSync('./tmp'),
+      '/bin': fs.realpathSync('../build/install/bin'),
+      '/lib': fs.realpathSync('../wasi-sdk/lib'),
+      '/share': fs.realpathSync('../wasi-sdk/share')
     }
   });
   const importObject = {
     wasi_snapshot_preview1: wasi.wasiImport,
-    my: {
-      my_realpath : function(filename, resolved) {
-        console.log('my_realpath');
+    wasiext: { // TODO: rename e.g. nonwasi
+      my_realpath : function(filename, resolved, size) {
+        filename = getString(filename);
+        let result = path.resolve('/sandbox', filename);
+        console.log('my_realpath', filename, '->', result);
+        setString(resolved, size, result);
       },
       my_fatal : function(message) {
-        console.log('my_fatal');
+        console.log('my_fatal', message);
+        throw Error(`WASM Process fatal: ${message}`);
       },
       my_exec_name : function(buffer, size) {
         setString(buffer, size, "/bin/clang-11");
@@ -78,6 +88,7 @@ async function run(args) {
       },
       my_home_path : function(buffer, size) {
         console.log('my_home_path');
+        setString(buffer, size, "/sandbox");
       },
       my_exec : function(program, args, arg_count, envs, env_count, redir) {
         console.log('my_exec');
@@ -88,19 +99,15 @@ async function run(args) {
       },
     }
   };
-  importObject.wasi_snapshot_preview1.proc_exit = function(exitCode) {
-    console.log("Exit ", exitCode);
-    throw Error("Application exit");
-  }
   console.log("----instantiate---");
   instance = await WebAssembly.instantiate(wasm, importObject);
   memory = instance.exports.memory;
   console.log("----start---");
-  wasi.start(instance);
+  console.log(wasi.start(instance));
   console.log("----");
 }
 
-fs.writeFileSync('in.txt', '');
+/*fs.writeFileSync('in.txt', '');
 while (fs.existsSync('in.txt')) {
   let cnt = fs.readFileSync('in.txt');
   if (cnt.length > 0) {
@@ -113,4 +120,6 @@ while (fs.existsSync('in.txt')) {
   } else {
     await new Promise(r => setTimeout(r, 500));
   }
-}
+}*/
+
+await run(["","--sysroot", "/share/wasi-sysroot", "-c", "-Oz", "-std=c++14", "/sandbox/hello.cpp", "-o", "/sandbox/hello.wasm"]);

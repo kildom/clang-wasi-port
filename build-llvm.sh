@@ -5,10 +5,10 @@ set -e
 mkdir -p $SCRIPT_DIR/build/install
 cd $SCRIPT_DIR/build
 
-export CC="$SCRIPT_DIR/wasi-sdk-new/bin/clang --sysroot=$SCRIPT_DIR/wasi-sdk-new/share/wasi-sysroot"
-export CXX="$SCRIPT_DIR/wasi-sdk-new/bin/clang++ --sysroot=$SCRIPT_DIR/wasi-sdk-new/share/wasi-sysroot"
+export CC="$SCRIPT_DIR/wasi-sdk-new/bin/clang --sysroot=$SCRIPT_DIR/wasi-sdk-new/share/wasi-sysroot -Wl,-z,stack-size=33554432 -Wl,--stack-first"
+export CXX="$SCRIPT_DIR/wasi-sdk-new/bin/clang++ --sysroot=$SCRIPT_DIR/wasi-sdk-new/share/wasi-sysroot -Wl,-z,stack-size=33554432 -Wl,--stack-first"
 
-echo 
+echo
 cmake -G Ninja \
 		-DCMAKE_BUILD_TYPE=MinSizeRel \
 		-DCMAKE_INSTALL_PREFIX=$SCRIPT_DIR/build/install \
